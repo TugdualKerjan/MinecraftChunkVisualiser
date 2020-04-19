@@ -8,10 +8,7 @@ import locale
 import os
 import sys
 import pprint
-
-from nbt.chunk import AnvilChunk
-from nbt.region import *
-from nbt.world import WorldFolder
+1
 
 # local module
 try:
@@ -25,14 +22,14 @@ except ImportError:
     sys.path.append(extrasearchpath)
 
 block_colors = {
-    'acacia_leaves':        [114, 64,  22],
-    'acacia_log':           [35,  93,  30],
+    # 'acacia_leaves':        [114, 64,  22],
+    # 'acacia_log':           [35,  93,  30],
     # 'air':                  [60, 100, 90],
     'andesite':             [0,   0,   32],
     'azure_bluet':          [0,   0,   100],
     'bedrock':              [0,   0,   10],
-    'birch_leaves':         [114, 64,  22],
-    'birch_log':            [35,  93,  30],
+    # 'birch_leaves':         [114, 64,  22],
+    # 'birch_log':            [35,  93,  30],
     'blue_orchid':          [0,   0,   100],
     'bookshelf':            [0,   0,   100],
     'brown_mushroom':       [0,   0,   100],
@@ -45,8 +42,8 @@ block_colors = {
     'cobblestone_stairs':   [0,   0,   25],
     'crafting_table':       [0,   0,   100],
     'dandelion':            [60,  100, 60],
-    'dark_oak_leaves':      [114, 64,  22],
-    'dark_oak_log':         [35,  93,  30],
+    # 'dark_oak_leaves':      [114, 64,  22],
+    # 'dark_oak_log':         [35,  93,  30],
     'dark_oak_planks':      [35,  93,  30],
     'dead_bush':            [0,   0,   100],
     'diorite':              [0,   0,   32],
@@ -75,8 +72,8 @@ block_colors = {
     'oak_door':             [35,  93,  30],
     'oak_fence':            [35,  93,  30],
     'oak_fence_gate':       [35,  93,  30],
-    'oak_leaves':           [114, 64,  22],
-    'oak_log':              [35,  93,  30],
+    # 'oak_leaves':           [114, 64,  22],
+    # 'oak_log':              [35,  93,  30],
     'oak_planks':           [35,  93,  30],
     'oak_pressure_plate':   [35,  93,  30],
     'oak_stairs':           [114, 64,  22],
@@ -85,16 +82,16 @@ block_colors = {
     'poppy':                [0,   100, 50],
     'pumpkin':              [24,  100, 45],
     'rail':                 [33,  81,  50],
-    'red_mushroom':         [0,   50,  20],
-    'red_mushroom_block':   [0,   50,  20],
+    # 'red_mushroom':         [0,   50,  20],
+    # 'red_mushroom_block':   [0,   50,  20],
     'rose_bush':            [0,   0,   100],
     'sugar_cane':           [123, 70,  50],
     'sand':                 [53,  22,  58],
     'sandstone':            [48,  31,  40],
     'seagrass':             [94,  42,  25],
     'sign':                 [114, 64,  22],
-    'spruce_leaves':        [114, 64,  22],
-    'spruce_log':           [35,  93,  30],
+    # 'spruce_leaves':        [114, 64,  22],
+    # 'spruce_log':           [35,  93,  30],
     'stone':                [0,   0,   32],
     'stone_slab':           [0,   0,   32],
     'tall_grass':           [94,  42,  25],
@@ -111,16 +108,15 @@ block_colors = {
 
 row = [None]*512*512
 
-
-def stats_per_chunk(chunk: AnvilChunk):
-    # for y in range(256):
-    #     for z in range(16):
-    #         for x in range(16):
-    #             # if(x == 0 or x == 15 or z == 0 or z == 15):
-    #             block_id = chunk.get_block(x, y, z)
-    #             if block_id in block_colors:
-    #                 color = block_colors[block_id]
-    #                 row.insert(x + z * 16 + y * 256, color)
+def blocks_to_color_for_a_chunk(chunk: AnvilChunk):
+    for y in range(256):
+        for z in range(16):
+            for x in range(16):
+                # if(x == 0 or x == 15 or z == 0 or z == 15):
+                block_id = chunk.get_block(x, y, z)
+                if block_id in block_colors:
+                    color = block_colors[block_id]
+                    row.insert(x + z * 16 + y * 256, color)
     for z in range(16):
         for x in range(16):
             y = 255
@@ -131,12 +127,33 @@ def stats_per_chunk(chunk: AnvilChunk):
                     color = block_colors[block_id]
                     row[x + z * 16 + y * 256] = color
                     y = 0
-                else: y -= 1
+                else:
+                    y -= 1
+
+
+def heighest_blocks_in_chunk(chunk: AnvilChunk):
+    cx, cz = chunk.get_coords()
+    for z in range(16):
+        for x in range(16):
+            y = 255
+            while y > 0:
+                block_id = chunk.get_block(x, y, z)
+                if block_id in block_colors:
+                    
+                    # print("Index : " + str(x + z * 16) + " " + str(block_id))
+                    color = block_colors[block_id].copy()
+                    color.insert(3, y)
+                    row[x + z * 16 + cx*16*16 + cz*16*16*32] = color
+                    y = 0
+                else:
+                    y -= 1
 
 
 def process_region_file(region: RegionFile):
-    for chunk in region.iter_chunks_class():
-        stats_per_chunk(chunk)
+    for chunk in region.iter_chunks():
+        print(AnvilChunk(chunk).get_coords())
+        heighest_blocks_in_chunk(AnvilChunk(chunk))
+
 
 def print_results():
     with open("data.json", 'w') as outfile:
