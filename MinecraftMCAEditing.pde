@@ -1,6 +1,6 @@
 int size = 4;
 JSONArray data;
-int depth = 200;
+int depth = 300;
 
 void settings() {
     size(1080, 1080, P3D);
@@ -17,7 +17,7 @@ float rx = 0;
 float rz = 0;
 
 void draw() {
-    background(200);
+    background(color(240, 100, 100));
     camera(width/2, height/2*0.35, depth, width/2, height/2, 0, 0, 1, 0);
     ambientLight(0, 0, 100, 0, 100, 0);
     directionalLight(0, 0, 80, 0, 50, -10);
@@ -31,7 +31,9 @@ void draw() {
             }
         }
     }
-    rx += 0.01;
+    rx += 0.005 * TWO_PI;
+    //saveFrame("data/frame####.png"); //Create gif 
+    //ffmpeg -i %04d.png output.gif
 }
 
 void mouseDragged(){

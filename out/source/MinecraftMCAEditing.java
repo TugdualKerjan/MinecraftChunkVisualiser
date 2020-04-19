@@ -16,7 +16,7 @@ public class MinecraftMCAEditing extends PApplet {
 
 int size = 4;
 JSONArray data;
-int depth = 200;
+int depth = 300;
 
 public void settings() {
     size(1080, 1080, P3D);
@@ -33,7 +33,7 @@ float rx = 0;
 float rz = 0;
 
 public void draw() {
-    background(200);
+    background(color(240, 100, 100));
     camera(width/2, height/2*0.35f, depth, width/2, height/2, 0, 0, 1, 0);
     ambientLight(0, 0, 100, 0, 100, 0);
     directionalLight(0, 0, 80, 0, 50, -10);
@@ -47,7 +47,8 @@ public void draw() {
             }
         }
     }
-    rx += 0.01f;
+    rx += 0.005f * TWO_PI;
+    saveFrame("data/frame####.png");
 }
 
 public void mouseDragged(){
